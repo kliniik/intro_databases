@@ -1,0 +1,34 @@
+--zadanie1
+
+id_produktu -> nazwa_produktu, cena_produktu, VAT
+Dla każdego id_produktu została przypisana nazwa produktu, jego cena oraz stawka VAT.
+
+id_klienta, data_zamowienia -> nazwa_klienta, suma_brutto, suma_netto
+
+Dla jednego klienta danego dnia istnieje tylko jedno zamówienie danego produktu. 
+Zatem dla każdego id_klienta w danym dniu istnieje powiązanie z nazwą klienta oraz sumami brutto i netto.
+
+nazwa_produktu -> VAT
+Dla każdej nazwy produktu istanieje określona stawka VAT.
+
+
+--zadanie2
+
+id_produktu (unikalny dla każdego produktu, może służyć jako klucz główny)
+id_klienta, data_zamowienia, id_produktu (taka kombinacja może służyć za klucz główny, zakładając, że dla jednego klienta mamy tylko jedno zamównienie danego dnia)
+
+
+--zadanie3
+
+zależności funkcyjne:
+
+id_pomieszczenia -> id_budynku, numer_pomieszczenia, powierzchnia, liczba_okien, liczba_drzwi, ulica, miasto, kod_pocztowy
+id_pomieszczenia jest kluczem głównym, zatem wszytskie inne atrybuty są od niego zależne.
+
+id_budynku -> ulica, miasto, kod_pocztowy
+Dane adresowe budynku są od niego zależne. 
+
+klucze kandydujące:
+
+id_pomieszczenia (może służyć jako klucz główny)
+id_budynku, numer_pomieszczenia (jeśli numer pomieszczenia jest unikalny, to taka kombinacja może służyć za klucz główny)
