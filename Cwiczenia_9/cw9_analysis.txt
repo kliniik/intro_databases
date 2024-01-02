@@ -1,0 +1,42 @@
+_____________________________________________________________
+Instrukcja nr1 (without INDEX):
+
+"QUERY PLAN"
+"Hash Join  (cost=415.95..1581.22 rows=279 width=44) (actual time=1.393..6.537 rows=486 loops=1)"
+"  Hash Cond: (soh.customerid = c.customerid)"
+"  ->  Seq Scan on salesorderheader soh  (cost=0.00..1082.65 rows=31465 width=32) (actual time=0.011..2.078 rows=31465 loops=1)"
+"  ->  Hash  (cost=413.75..413.75 rows=176 width=16) (actual time=1.369..1.369 rows=176 loops=1)"
+"        Buckets: 1024  Batches: 1  Memory Usage: 16kB"
+"        ->  Seq Scan on customer c  (cost=0.00..413.75 rows=176 width=16) (actual time=0.014..1.344 rows=176 loops=1)"
+"              Filter: (territoryid = 5)"
+"              Rows Removed by Filter: 19644"
+"Planning Time: 4.439 ms"
+"Execution Time: 6.665 ms"
+
+____________________________________________________________
+Instrukcja nr2 (with INDEX):
+
+"QUERY PLAN"
+"Hash Join  (cost=183.14..1348.41 rows=279 width=44) (actual time=0.238..7.895 rows=486 loops=1)"
+"  Hash Cond: (soh.customerid = c.customerid)"
+"  ->  Seq Scan on salesorderheader soh  (cost=0.00..1082.65 rows=31465 width=32) (actual time=0.012..2.999 rows=31465 loops=1)"
+"  ->  Hash  (cost=180.94..180.94 rows=176 width=16) (actual time=0.209..0.211 rows=176 loops=1)"
+"        Buckets: 1024  Batches: 1  Memory Usage: 16kB"
+"        ->  Bitmap Heap Scan on customer c  (cost=5.65..180.94 rows=176 width=16) (actual time=0.079..0.178 rows=176 loops=1)"
+"              Recheck Cond: (territoryid = 5)"
+"              Heap Blocks: exact=24"
+"              ->  Bitmap Index Scan on idx_territoryid  (cost=0.00..5.61 rows=176 width=0) (actual time=0.061..0.061 rows=176 loops=1)"
+"                    Index Cond: (territoryid = 5)"
+"Planning Time: 6.665 ms"
+"Execution Time: 8.072 ms"
+
+
+____________________________________________________________
+Jaka jest i z czego wynika różnica?
+
+Głównie zauważalną różnicą pomiędzy zapytaniami jest czas planowania oraz wykonania zapytania. Możnaby było się spodziewać, że użycie indeksacji skróci czas wykonania zapytania, jednak w przypadku tych konkretnych tabeli osiągnięto odwrotny skutek.
+
+Instrukcja nr1 wykonuje skanowanie sekwencyjne dla obu tabel - przeszukuje wszystkie rekordy w tabelach w celu znalezienia pasujących wyników.
+Instrukcja nr2 przeszukuje tabelę 'customer' za pomocą Bitmap Heap Scan, wykorzystując indeks 'idx_territoryid' na kolumnie 'territoryid', aby najpierw namierzyć indeks bitmapowy, a następnie odnaleźć rzeczywiste dane w tabeli.
+
+Różnica w wynikach może być związana z operacjami indeksowymi (Bitmap Heap Scan, Bitmap Index Scan) oraz samą operacją Hash Join. Czynniki te mogą wpływać na czas wykonania, szczególnie w kontekście małych tabel lub mało selektywnych warunków. W tym wypadku indeksowanie wydłużyło czas wykonania zapytania z 6.665 ms na 8.072 ms.
